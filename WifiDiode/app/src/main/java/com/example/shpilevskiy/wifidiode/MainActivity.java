@@ -8,11 +8,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.ToggleButton;
 
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String domain = "http://192.168.100.16";
+    private static final String lightON = "/toggle";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,16 +24,30 @@ public class MainActivity extends AppCompatActivity {
 
 
         ToggleButton toggle = (ToggleButton) findViewById(R.id.toggleButton);
+        Switch lightSwitcher = (Switch) findViewById(R.id.lightSwitcher);
+
 
         final EditText ssidText = (EditText) findViewById(R.id.SsidEditText);
         final EditText passwordText = (EditText) findViewById(R.id.PasswordEditText);
+
+
+
 
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     createWifiConnection(ssidText.getText().toString(), passwordText.getText().toString());
+                }
+            }
+        });
+
+        lightSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    toggleLightViaHttp();
+                    System.out.println("1");
                 } else {
-                    System.out.println("bye");
+                    System.out.println("bye bye");
                 }
             }
         });
@@ -62,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(wifi.getConnectionInfo());
     }
 
-    public void sendSignal() {
+    public void toggleLightViaHttp() {
 
     }
 }
