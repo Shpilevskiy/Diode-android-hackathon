@@ -12,37 +12,36 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.ToggleButton;
 
+import com.example.shpilevskiy.wifidiode.LEDClient.LEDClient;
+
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String domain = "http://192.168.100.16";
-    private static final String lightON = "/toggle";
-    private static final String status = "/status";
+    private static final String HOST = "http://192.168.100.16";
+
+    final ToggleButton toggle = (ToggleButton) findViewById(R.id.toggleButton);
+    final Switch lightSwitcher = (Switch) findViewById(R.id.lightSwitcher);
+    final EditText ssidText = (EditText) findViewById(R.id.SsidEditText);
+    final EditText passwordText = (EditText) findViewById(R.id.PasswordEditText);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-
         setContentView(R.layout.activity_main);
 
-        ToggleButton toggle = (ToggleButton) findViewById(R.id.toggleButton);
-        Switch lightSwitcher = (Switch) findViewById(R.id.lightSwitcher);
+        final LEDClient ledClient = new LEDClient(HOST);
 
-
-        final EditText ssidText = (EditText) findViewById(R.id.SsidEditText);
-        final EditText passwordText = (EditText) findViewById(R.id.PasswordEditText);
-
+        if (ledClient.isOn()) {
+            lightSwitcher.setChecked(true);
+        }
 
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -54,11 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
         lightSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                try {
-                    toggleLightViaHttp(domain + lightON);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                ledClient.toggleLED();
             }
         });
     }
@@ -88,14 +83,5 @@ public class MainActivity extends AppCompatActivity {
         boolean b = wifi.enableNetwork(network, true);
         Log.d("WifiPreference", "enableNetwork returned " + b);
         System.out.println(wifi.getConnectionInfo());
-    }
-
-    public InputStream toggleLightViaHttp(String requestUrl) throws IOException {
-        HttpURLConnection urlConnection = null;
-        URL url = new URL(requestUrl);
-        urlConnection = (HttpURLConnection) url.openConnection();
-        BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
-        urlConnection.disconnect();
-        return in;
     }
 }
