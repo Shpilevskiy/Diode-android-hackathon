@@ -3,6 +3,7 @@ package com.example.shpilevskiy.wifidiode;
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +11,14 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.ToggleButton;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -20,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         setContentView(R.layout.activity_main);
 
 
@@ -81,6 +94,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toggleLightViaHttp() {
+        Log.d("LEDClient", "Going to send GET request");
+        URL url = null;
+//        JSONObject jsonResponse = null;
+        try {
+            url = new URL("http://www.google.com");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return;
+        }
+        HttpURLConnection urlConnection = null;
+        try {
+            urlConnection = (HttpURLConnection) url.openConnection();
+            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 
+
+            ByteArrayOutputStream result = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = in.read(buffer)) != -1) {
+                result.write(buffer, 0, length);
+            }
+
+            String output = result.toString();
+
+
+        }
+        catch (IOException e) {
+            Log.e("LEDClient", "Error parsing the URL.");
+        }   finally {
+            if (urlConnection != null){
+                urlConnection.disconnect();
+            }
+        }
+
+//        HttpClient httpclient = new DefaultHttpClient();
     }
 }
