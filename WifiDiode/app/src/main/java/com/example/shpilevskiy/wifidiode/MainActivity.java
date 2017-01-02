@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String domain = "http://192.168.100.16";
     private static final String lightON = "/toggle";
+    private static final String status = "/status";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,15 +36,12 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-
         ToggleButton toggle = (ToggleButton) findViewById(R.id.toggleButton);
         Switch lightSwitcher = (Switch) findViewById(R.id.lightSwitcher);
 
 
         final EditText ssidText = (EditText) findViewById(R.id.SsidEditText);
         final EditText passwordText = (EditText) findViewById(R.id.PasswordEditText);
-
-
 
 
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -56,11 +54,10 @@ public class MainActivity extends AppCompatActivity {
 
         lightSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    toggleLightViaHttp();
-                    System.out.println("1");
-                } else {
-                    System.out.println("bye bye");
+                try {
+                    toggleLightViaHttp(domain + lightON);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -76,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         WifiConfiguration conf = new WifiConfiguration();
 
         conf.SSID = "\"" + ssid + "\"";
-        conf.preSharedKey = "\""+ password +"\"";
+        conf.preSharedKey = "\"" + password + "\"";
         conf.status = WifiConfiguration.Status.ENABLED;
         conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
         conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
@@ -89,45 +86,16 @@ public class MainActivity extends AppCompatActivity {
         int network = wifi.addNetwork(conf);
         Log.d("WifiPreference", "add Network returned " + network);
         boolean b = wifi.enableNetwork(network, true);
-        Log.d("WifiPreference", "enableNetwork returned " + b );
+        Log.d("WifiPreference", "enableNetwork returned " + b);
         System.out.println(wifi.getConnectionInfo());
     }
 
-    public void toggleLightViaHttp() {
-        Log.d("LEDClient", "Going to send GET request");
-        URL url = null;
-//        JSONObject jsonResponse = null;
-        try {
-            url = new URL("http://www.google.com");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return;
-        }
+    public InputStream toggleLightViaHttp(String requestUrl) throws IOException {
         HttpURLConnection urlConnection = null;
-        try {
-            urlConnection = (HttpURLConnection) url.openConnection();
-            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-
-
-            ByteArrayOutputStream result = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = in.read(buffer)) != -1) {
-                result.write(buffer, 0, length);
-            }
-
-            String output = result.toString();
-
-
-        }
-        catch (IOException e) {
-            Log.e("LEDClient", "Error parsing the URL.");
-        }   finally {
-            if (urlConnection != null){
-                urlConnection.disconnect();
-            }
-        }
-
-//        HttpClient httpclient = new DefaultHttpClient();
+        URL url = new URL(requestUrl);
+        urlConnection = (HttpURLConnection) url.openConnection();
+        BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
+        urlConnection.disconnect();
+        return in;
     }
 }
