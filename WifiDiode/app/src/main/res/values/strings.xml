@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">WifiDiode</string>
+    <string name="manage_your_diodes_with_this_simple_application_one_button_its_easy">Manage your diodes with this simple application: one button - its easy</string>
+    <string name="togglebutton">ToggleButton</string>
+</resources>

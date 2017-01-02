@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.shpilevskiy.wifidiode.MainActivity">
+
+    <ToggleButton
+        android:text="@string/togglebutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/toggleButton" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="94267812"
+        android:ems="10"
+        android:id="@+id/PasswordEditText"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:layout_marginEnd="22dp"
+        android:layout_above="@+id/toggleButton"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="33dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="thank_for"
+        android:ems="10"
+        android:id="@+id/SsidEditText"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:layout_above="@+id/PasswordEditText"
+        android:layout_alignStart="@+id/PasswordEditText"
+        android:layout_marginBottom="38dp" />
+
+    <TextView
+        android:text="password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/PasswordTextView"
+        android:layout_alignBaseline="@+id/PasswordEditText"
+        android:layout_alignBottom="@+id/PasswordEditText"
+        android:layout_toStartOf="@+id/toggleButton" />
+
+    <TextView
+        android:text="ssid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="14dp"
+        android:id="@+id/SsidTextView"
+        android:layout_alignBaseline="@+id/SsidEditText"
+        android:layout_alignBottom="@+id/SsidEditText"
+        android:layout_alignEnd="@+id/PasswordTextView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:text="manage_your_diodes_with_this_simple_application"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
