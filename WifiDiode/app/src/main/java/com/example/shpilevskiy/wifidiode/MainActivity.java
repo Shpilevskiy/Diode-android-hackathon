@@ -27,27 +27,6 @@ interface LEDClientInterface {
     void setBrightnessLevel(int level);
 }
 
-public class LEDClient implements LEDClientInterface {
-    private static String host;
-
-    public LEDClient(String host){
-        this.host = host;
-    }
-
-    public void toggleLED(){
-
-    }
-
-    public void setBrightnessLevel(int level){
-
-    }
-
-    public Boolean isOn(){
-        return false;
-    }
-}
-
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String domain = "http://192.168.100.16";
