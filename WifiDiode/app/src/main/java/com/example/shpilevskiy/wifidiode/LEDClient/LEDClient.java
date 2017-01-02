@@ -1,8 +1,16 @@
 package com.example.shpilevskiy.wifidiode.LEDClient;
 
 
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,7 +23,8 @@ public class LEDClient implements LEDClientInterface {
     private static final String STATUS_URL = "/status";
     private static final int MIN_BRIGHTNESS_LEVEL = 0;
     private static final int MAX_BRIGHTNESS_LEVEL = 255;
-    private  static final String BRIGHTNESS_LEVEL_PARAM = "level";
+    private static final String BRIGHTNESS_LEVEL_PARAM = "level";
+    private static final String JSON_STATUS_KEY = "status";
 
 
     private static String host;
@@ -60,6 +69,32 @@ public class LEDClient implements LEDClientInterface {
     }
 
     public Boolean isOn() throws LEDClientException {
-        return false;
+        String statusURL = host + STATUS_URL;
+        InputStream in = getRequest(statusURL);
+
+        // TODO (mrlokans) here we need to have a proper method to convert InputStream to String
+        // https://stackoverflow.com/questions/22461663/convert-inputstream-to-jsonobject
+        String JSONString =  in.toString();
+        try {
+            JSONObject jo = new JSONObject(JSONString);
+            if (!jo.has(JSON_STATUS_KEY)){
+                throw new LEDClientException("Invalid JSON response");
+            }
+
+            String ledStatus = jo.getString(JSON_STATUS_KEY);
+            if (ledStatus.equals("on")){
+                Log.d("LED Client", "LED is on");
+                return true;
+            } else if (ledStatus.equals("off")){
+                Log.d("LED Client", "LED is off");
+                return false;
+            } else {
+                throw new LEDClientException("Invalid LED status " + ledStatus);
+            }
+
+        } catch (JSONException e){
+            Log.e("LED CLient", e.getMessage());
+            throw new LEDClientException("JSON parsing error.");
+        }
     }
 }
