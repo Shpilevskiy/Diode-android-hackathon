@@ -21,12 +21,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 
-interface LEDClientInterface {
-    void toggleLED();
-    Boolean isOn();
-    void setBrightnessLevel(int level);
-}
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String domain = "http://192.168.100.16";
