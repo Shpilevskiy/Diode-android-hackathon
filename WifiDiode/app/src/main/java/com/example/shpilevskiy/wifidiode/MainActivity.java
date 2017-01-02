@@ -37,8 +37,13 @@ public class MainActivity extends AppCompatActivity {
         final LEDClient ledClient = new LEDClient(HOST);
 
 
-        if (ledClient.isOn()) {
-            lightSwitcher.setChecked(true);
+        try {
+            if (ledClient.isOn()) {
+                lightSwitcher.setChecked(true);
+            }
+        } catch (LEDClientException e) {
+            // TODO (mrlokans) handle exception appropriately
+            e.printStackTrace();
         }
 
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -62,7 +67,12 @@ public class MainActivity extends AppCompatActivity {
         brightnessLevelBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                ledClient.setBrightnessLevel(progress);
+                try {
+                    ledClient.setBrightnessLevel(progress);
+                } catch (LEDClientException e) {
+                    // TODO (mrlokans) handle exception appropriately
+                    e.printStackTrace();
+                }
             }
 
             @Override
