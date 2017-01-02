@@ -5,7 +5,7 @@ package com.example.shpilevskiy.wifidiode.LEDClient;
  */
 
 public interface LEDClientInterface {
-    void toggleLED();
-    Boolean isOn();
-    void setBrightnessLevel(int level);
+    void toggleLED() throws LEDClientException;
+    Boolean isOn() throws LEDClientException;
+    void setBrightnessLevel(int level) throws LEDClientException;
 }

@@ -1,15 +1,30 @@
 package com.example.shpilevskiy.wifidiode.LEDClient;
 
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * Created by anders-lokans on 02.01.17.
  */
+class LEDClientException extends Exception{
+    public LEDClientException(){
+        super();
+    }
+
+    public LEDClientException(String message){
+        super(message);
+    }
+}
+
 
 public class LEDClient implements LEDClientInterface {
 
-    private static String TOGGLE_LED_URL = "toggle";
-    private static String SET_BRIGHTNESS_URL = "set";
-    private static String STATUS_URL = "status";
+    private static final String TOGGLE_LED_URL = "toggle";
+    private static final String SET_BRIGHTNESS_URL = "set";
+    private static final String STATUS_URL = "status";
 
 
     private static String host;
@@ -18,8 +33,18 @@ public class LEDClient implements LEDClientInterface {
         this.host = host;
     }
 
-    public void toggleLED(){
-
+    public void toggleLED() throws LEDClientException {
+        String toggleURL = host + TOGGLE_LED_URL;
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL(toggleURL);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            // urlConnection.getInputStream();
+        } catch (MalformedURLException e) {
+            throw new LEDClientException("Incorrect URL");
+        } catch (IOException e){
+            throw new LEDClientException("Unknown error parsing URL");
+        }
     }
 
     public void setBrightnessLevel(int level){
