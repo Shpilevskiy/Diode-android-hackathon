@@ -9,9 +9,9 @@ import java.net.URL;
 
 public class LEDClient implements LEDClientInterface {
 
-    private static final String TOGGLE_LED_URL = "toggle";
-    private static final String SET_BRIGHTNESS_URL = "set";
-    private static final String STATUS_URL = "status";
+    private static final String TOGGLE_LED_URL = "/toggle";
+    private static final String SET_BRIGHTNESS_URL = "/set";
+    private static final String STATUS_URL = "/status";
 
 
     private static String host;
@@ -26,7 +26,7 @@ public class LEDClient implements LEDClientInterface {
         try {
             URL url = new URL(toggleURL);
             urlConnection = (HttpURLConnection) url.openConnection();
-            // urlConnection.getInputStream();
+            urlConnection.getInputStream();
         } catch (MalformedURLException e) {
             throw new LEDClientException("Incorrect URL");
         } catch (IOException e){
