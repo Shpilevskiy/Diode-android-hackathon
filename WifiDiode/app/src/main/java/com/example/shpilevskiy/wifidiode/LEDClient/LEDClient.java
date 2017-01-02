@@ -6,19 +6,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-/**
- * Created by anders-lokans on 02.01.17.
- */
-class LEDClientException extends Exception{
-    public LEDClientException(){
-        super();
-    }
-
-    public LEDClientException(String message){
-        super(message);
-    }
-}
-
 
 public class LEDClient implements LEDClientInterface {
 

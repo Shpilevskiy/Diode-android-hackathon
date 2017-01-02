@@ -13,6 +13,7 @@ import android.widget.Switch;
 import android.widget.ToggleButton;
 
 import com.example.shpilevskiy.wifidiode.LEDClient.LEDClient;
+import com.example.shpilevskiy.wifidiode.LEDClient.LEDClientException;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -25,10 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String HOST = "http://192.168.100.16";
 
-    final ToggleButton toggle = (ToggleButton) findViewById(R.id.toggleButton);
-    final Switch lightSwitcher = (Switch) findViewById(R.id.lightSwitcher);
-    final EditText ssidText = (EditText) findViewById(R.id.SsidEditText);
-    final EditText passwordText = (EditText) findViewById(R.id.PasswordEditText);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,11 +35,17 @@ public class MainActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
 
+        final ToggleButton toggle = (ToggleButton) findViewById(R.id.toggleButton);
+        final Switch lightSwitcher = (Switch) findViewById(R.id.lightSwitcher);
+        final EditText ssidText = (EditText) findViewById(R.id.SsidEditText);
+        final EditText passwordText = (EditText) findViewById(R.id.PasswordEditText);
+
         final LEDClient ledClient = new LEDClient(HOST);
 
-        if (ledClient.isOn()) {
-            lightSwitcher.setChecked(true);
-        }
+//        waiting for implemintation
+//        if (ledClient.isOn()) {
+//            lightSwitcher.setChecked(true);
+//        }
 
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -53,7 +57,11 @@ public class MainActivity extends AppCompatActivity {
 
         lightSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                ledClient.toggleLED();
+                try {
+                    ledClient.toggleLED();
+                } catch (LEDClientException e) {
+                    Log.e("Toggle method", e.toString());
+                }
             }
         });
     }
