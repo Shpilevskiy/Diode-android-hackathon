@@ -1,4 +1,6 @@
 package com.example.shpilevskiy.wifidiode;
+import com.example.shpilevskiy.wifidiode.LEDClient.LEDClient;
+import com.example.shpilevskiy.wifidiode.LEDClient.LEDClientException;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
@@ -9,18 +11,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.ToggleButton;
-
-import com.example.shpilevskiy.wifidiode.LEDClient.LEDClient;
-import com.example.shpilevskiy.wifidiode.LEDClient.LEDClientException;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,13 +32,14 @@ public class MainActivity extends AppCompatActivity {
         final Switch lightSwitcher = (Switch) findViewById(R.id.lightSwitcher);
         final EditText ssidText = (EditText) findViewById(R.id.SsidEditText);
         final EditText passwordText = (EditText) findViewById(R.id.PasswordEditText);
+        final SeekBar brightnessLevelBar = (SeekBar) findViewById(R.id.brightnessLevelBar);
 
         final LEDClient ledClient = new LEDClient(HOST);
 
-//        waiting for implemintation
-//        if (ledClient.isOn()) {
-//            lightSwitcher.setChecked(true);
-//        }
+
+        if (ledClient.isOn()) {
+            lightSwitcher.setChecked(true);
+        }
 
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -62,6 +56,23 @@ public class MainActivity extends AppCompatActivity {
                 } catch (LEDClientException e) {
                     Log.e("Toggle method", e.toString());
                 }
+            }
+        });
+
+        brightnessLevelBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                ledClient.setBrightnessLevel(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
     }
