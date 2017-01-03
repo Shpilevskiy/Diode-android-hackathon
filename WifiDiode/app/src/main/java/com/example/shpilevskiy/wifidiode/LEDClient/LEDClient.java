@@ -2,6 +2,7 @@ package com.example.shpilevskiy.wifidiode.LEDClient;
 
 
 import android.util.Log;
+import android.util.StringBuilderPrinter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,8 +37,10 @@ public class LEDClient implements LEDClientInterface {
             urlConnection = (HttpURLConnection) url.openConnection();
             return urlConnection.getInputStream();
         } catch (MalformedURLException e) {
+            Log.e("LED Client", e.toString());
             throw new LEDClientException("Incorrect URL");
         } catch (IOException e){
+            Log.e("LED Client", e.toString());
             throw new LEDClientException("Unknown error parsing URL");
         } finally {
             if(urlConnection != null){
@@ -45,6 +48,18 @@ public class LEDClient implements LEDClientInterface {
             }
         }
 
+    }
+
+    private String inputStreamToString(InputStream in) throws IOException {
+        StringBuilder responseBuilder = new StringBuilder();
+
+        String inputString;
+
+        BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+        while((inputString = streamReader.readLine()) != null){
+            responseBuilder.append(inputString);
+        }
+        return responseBuilder.toString();
     }
 
     public LEDClient(String host){
@@ -72,9 +87,13 @@ public class LEDClient implements LEDClientInterface {
         String statusURL = host + STATUS_URL;
         InputStream in = getRequest(statusURL);
 
-        // TODO (mrlokans) here we need to have a proper method to convert InputStream to String
-        // https://stackoverflow.com/questions/22461663/convert-inputstream-to-jsonobject
-        String JSONString =  in.toString();
+        String JSONString = null;
+        try {
+            JSONString = inputStreamToString(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new LEDClientException();
+        }
         try {
             JSONObject jo = new JSONObject(JSONString);
             if (!jo.has(JSON_STATUS_KEY)){

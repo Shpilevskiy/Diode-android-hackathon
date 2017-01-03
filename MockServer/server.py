@@ -1,7 +1,9 @@
+import logging
 from aiohttp import web
 
 app = web.Application()
 
+logging.basicConfig(level=logging.INFO)
 
 LED_IS_ON = False
 
