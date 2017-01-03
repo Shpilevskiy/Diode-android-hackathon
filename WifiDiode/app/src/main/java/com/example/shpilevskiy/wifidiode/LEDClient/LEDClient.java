@@ -28,7 +28,7 @@ public class LEDClient implements LEDClientInterface {
     private static final String JSON_STATUS_KEY = "status";
 
 
-    private static String host;
+    private String host;
 
     private InputStream getRequest(String requestURL) throws LEDClientException  {
         HttpURLConnection urlConnection = null;
@@ -66,11 +66,13 @@ public class LEDClient implements LEDClientInterface {
         this.host = host;
     }
 
+    @Override
     public void toggleLED() throws LEDClientException {
         String toggleURL = host + TOGGLE_LED_URL;
         getRequest(toggleURL);
     }
 
+    @Override
     public void setBrightnessLevel(int level) throws LEDClientException {
         if (level < MIN_BRIGHTNESS_LEVEL){
             level = MIN_BRIGHTNESS_LEVEL;
@@ -83,6 +85,12 @@ public class LEDClient implements LEDClientInterface {
         getRequest(levelURL);
     }
 
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
     public Boolean isOn() throws LEDClientException {
         String statusURL = host + STATUS_URL;
         InputStream in = getRequest(statusURL);

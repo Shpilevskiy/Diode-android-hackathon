@@ -8,4 +8,5 @@ interface LEDClientInterface {
     void toggleLED() throws LEDClientException;
     Boolean isOn() throws LEDClientException;
     void setBrightnessLevel(int level) throws LEDClientException;
+    void setHost(String host);
 }
