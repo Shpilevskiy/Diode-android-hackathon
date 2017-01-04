@@ -38,14 +38,12 @@ public class MainActivity extends AppCompatActivity {
         final EditText passwordText = (EditText) findViewById(R.id.PasswordEditText);
         final SeekBar brightnessLevelBar = (SeekBar) findViewById(R.id.brightnessLevelBar);
 
-;
-
         BoardDiscoverer boardDiscoverer = new BoardDiscoverer(25, (WifiManager) getSystemService(Context.WIFI_SERVICE));
 
-        HOST = boardDiscoverer.discoverBoard();
-        System.out.println("!" + HOST);
+        while (HOST == null) {HOST = boardDiscoverer.discoverBoard();}
+
         final LEDClient ledClient = new LEDClient(HOST);
-        //        prepareUiElements(lightSwitcher);
+        prepareUiElements(lightSwitcher);
 
 
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

@@ -27,19 +27,19 @@ public class LEDClient implements LEDClientInterface {
     private static final String BRIGHTNESS_LEVEL_PARAM = "level";
     private static final String JSON_STATUS_KEY = "status";
 
-
     private String host;
 
-    private InputStream getRequest(String requestURL) throws LEDClientException  {
+    private JSONObject getRequest(String requestURL) throws LEDClientException  {
         HttpURLConnection urlConnection = null;
         try {
             URL url = new URL(requestURL);
             urlConnection = (HttpURLConnection) url.openConnection();
-            return urlConnection.getInputStream();
+            urlConnection.connect();
+            return getJsonObject(urlConnection.getInputStream());
         } catch (MalformedURLException e) {
             Log.e("LED Client", e.toString());
             throw new LEDClientException("Incorrect URL");
-        } catch (IOException e){
+        } catch (IOException e) {
             Log.e("LED Client", e.toString());
             throw new LEDClientException("Unknown error parsing URL");
         } finally {
@@ -48,18 +48,6 @@ public class LEDClient implements LEDClientInterface {
             }
         }
 
-    }
-
-    private String inputStreamToString(InputStream in) throws IOException {
-        StringBuilder responseBuilder = new StringBuilder();
-
-        String inputString;
-
-        BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-        while((inputString = streamReader.readLine()) != null){
-            responseBuilder.append(inputString);
-        }
-        return responseBuilder.toString();
     }
 
     public LEDClient(String host){
@@ -93,35 +81,51 @@ public class LEDClient implements LEDClientInterface {
     @Override
     public Boolean isOn() throws LEDClientException {
         String statusURL = host + STATUS_URL;
-        InputStream in = getRequest(statusURL);
+        JSONObject jo = getRequest(statusURL);
 
-        String JSONString = null;
         try {
-            JSONString = inputStreamToString(in);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new LEDClientException();
-        }
-        try {
-            JSONObject jo = new JSONObject(JSONString);
-            if (!jo.has(JSON_STATUS_KEY)){
-                throw new LEDClientException("Invalid JSON response");
-            }
+            if (jo != null)
+            {
+                if (!jo.has(JSON_STATUS_KEY)){
+                    throw new LEDClientException("Invalid JSON response");
+                }
 
-            String ledStatus = jo.getString(JSON_STATUS_KEY);
-            if (ledStatus.equals("on")){
-                Log.d("LED Client", "LED is on");
-                return true;
-            } else if (ledStatus.equals("off")){
-                Log.d("LED Client", "LED is off");
-                return false;
-            } else {
-                throw new LEDClientException("Invalid LED status " + ledStatus);
+                String ledStatus = jo.getString(JSON_STATUS_KEY);
+                switch (ledStatus) {
+                    case "on":
+                        Log.d("LED Client", "LED is on");
+                        return true;
+                    case "off":
+                        Log.d("LED Client", "LED is off");
+                        return false;
+                    default:
+                        throw new LEDClientException("Invalid LED status " + ledStatus);
+                }
             }
-
+            else {
+                throw new LEDClientException("Invalid server response");
+            }
         } catch (JSONException e){
-            Log.e("LED CLient", e.getMessage());
+            Log.e("LED Client", e.getMessage());
             throw new LEDClientException("JSON parsing error.");
         }
+    }
+
+    private JSONObject getJsonObject(InputStream in){
+        try {
+            BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            StringBuilder responseStrBuilder = new StringBuilder();
+
+            String inputStr;
+            while ((inputStr = streamReader.readLine()) != null){
+                responseStrBuilder.append(inputStr);
+            }
+            //returns the json object
+            return new JSONObject(responseStrBuilder.toString());
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
