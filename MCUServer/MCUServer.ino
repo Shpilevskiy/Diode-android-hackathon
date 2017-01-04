@@ -8,15 +8,15 @@ const char* password = "94267812";
 
 
 const int LED_PIN = 14;
-bool LED_IS_ON = false;
 
 const char* BRIGHTNESS_LEVEL_QUERY_NAME = "level";
+const int MIN_BRIGHTNESS_LEVEL = 0;
 const int MAX_BRIGHTNESS_LEVEL = 255;
+
+int BRIGHTNESS_LEVEL = 0;
 
 
 ESP8266WebServer server(80);
-
-const int led = 13;
 
 
 // Returns value of the specified GET query param
@@ -29,64 +29,85 @@ String getQueryValue(String paramName){
   return "";
 }
 
+// Reads current brightness level
+int readBrightnessLevel(){
+  return BRIGHTNESS_LEVEL;
+}
+
+// Sets current brightness level
+void writeBrightnessLevel(int level){
+  BRIGHTNESS_LEVEL = level;
+  analogWrite(LED_PIN, level);
+}
 
 // Toggle LED
 void toggleLED(){
-  if (LED_IS_ON){
-    
-//    digitalWrite(LED_PIN, LOW);
-    analogWrite(LED_PIN, 0);
-    LED_IS_ON = false;
+  if (BRIGHTNESS_LEVEL == MAX_BRIGHTNESS_LEVEL){
+    writeBrightnessLevel(MIN_BRIGHTNESS_LEVEL);
   } else {
-//    digitalWrite(LED_PIN, HIGH);
-    analogWrite(LED_PIN, MAX_BRIGHTNESS_LEVEL);
-    LED_IS_ON = true;
+    writeBrightnessLevel(MAX_BRIGHTNESS_LEVEL);
   }
 }
 
 // Retuns JSON with current LED state
 void LEDstatus(){
-  if (LED_IS_ON){
-    server.send(200, "text/plain", "{'status': 'on'}");
-  } else {
+  if (BRIGHTNESS_LEVEL == MIN_BRIGHTNESS_LEVEL){
     server.send(200, "text/plain", "{'status': 'off'}");
+  } else {
+    server.send(200, "text/plain", "{'status': 'on'}");
   }
 }
 
 // API to adjust LED brightness
 void set_brightness(){
-  if (!LED_IS_ON){
+  if (BRIGHTNESS_LEVEL == MIN_BRIGHTNESS_LEVEL){
     server.send(400, "application/json", "{'message': 'Can not update disabled LED'}");
     return;
   }
+
   String brightnessString = getQueryValue(BRIGHTNESS_LEVEL_QUERY_NAME);
-  int brightnessValue = 0;
+  int brightnessValue = MIN_BRIGHTNESS_LEVEL;
 
   if (brightnessString == ""){
-    brightnessValue = 0;
+    brightnessValue = MIN_BRIGHTNESS_LEVEL;
   } else {
     char carray[4];
     brightnessString.toCharArray(carray, sizeof(carray));
     brightnessValue = atoi(carray);
   }
 
-  if (0 <= brightnessValue <= 255){
-      analogWrite(LED_PIN, brightnessValue);
+  if (MIN_BRIGHTNESS_LEVEL <= brightnessValue <= MAX_BRIGHTNESS_LEVEL){
+      writeBrightnessLevel(brightnessValue);
+      Serial.print("Brightness level adjusted: ");
+      Serial.print(brightnessString + '\n');
+      
       server.send(200, "application/json", "{'status': 'brightness changed'}");
   } else {
       server.send(400, "application/json", "{'message': 'Incorrect value, correct values is between 0 and 255'}");
   }
 }
 
+// API endpoint to read current brightness level
+void getBrignessLevel(){
+  int brightnessLevel = readBrightnessLevel();
+
+  char buffer[50];
+
+  sprintf(buffer, "{'level': %d}", brightnessLevel);
+  String response(buffer);
+  server.send(200, "application/json", response);
+}
+
 
 void handleRoot() {
-  digitalWrite(led, 1);
   server.send(200, "text/plain", "hello from esp8266!");
-  digitalWrite(led, 0);
+}
+
+void handleTest() {
+  server.send(200, "text/plain", "{'status': 'on'}");
 }
 
 void handleNotFound(){
-  digitalWrite(led, 1);
   String message = "File Not Found\n\n";
   message += "URI: ";
   message += server.uri();
@@ -99,14 +120,13 @@ void handleNotFound(){
     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
   server.send(404, "text/plain", message);
-  digitalWrite(led, 0);
 }
 
 
 void handleLED(){
   Serial.print("Toggling the LED.\n");
   toggleLED();
-  if (LED_IS_ON) {
+  if (readBrightnessLevel() > MIN_BRIGHTNESS_LEVEL) {
     server.send(200, "application/json", "{'message': 'LED is on'}");
   } else {
     server.send(200, "application/json", "{'message': 'LED is off'}");
@@ -116,9 +136,9 @@ void handleLED(){
 
 
 void setup(void){
-  pinMode(led, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(led, 0);
+
+ 
   Serial.begin(115200);
   WiFi.begin(ssid, password);
   Serial.println("");
@@ -139,14 +159,11 @@ void setup(void){
   }
 
   server.on("/", handleRoot);
-
-  server.on("/inline", [](){
-    server.send(200, "text/plain", "this works as well");
-  });
-
   server.on("/toggle", handleLED);
   server.on("/status", LEDstatus);
   server.on("/set", set_brightness);
+  server.on("/brightness", getBrignessLevel);
+  server.on("/test", handleTest);
 
   server.onNotFound(handleNotFound);
 
