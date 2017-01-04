@@ -1,23 +1,15 @@
-package com.example.shpilevskiy.wifidiode.LEDClient;
+package com.example.shpilevskiy.wifidiode.LEDHttp.LEDClient;
 
 
 import android.util.Log;
-import android.util.StringBuilderPrinter;
+
+import com.example.shpilevskiy.wifidiode.LEDHttp.HTTPClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
-
-public class LEDClient implements LEDClientInterface {
+public class LEDClient extends HTTPClient implements LEDClientInterface {
 
     private static final String TOGGLE_LED_URL = "/toggle";
     private static final String SET_BRIGHTNESS_URL = "/set";
@@ -28,27 +20,6 @@ public class LEDClient implements LEDClientInterface {
     private static final String JSON_STATUS_KEY = "status";
 
     private String host;
-
-    private JSONObject getRequest(String requestURL) throws LEDClientException  {
-        HttpURLConnection urlConnection = null;
-        try {
-            URL url = new URL(requestURL);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.connect();
-            return getJsonObject(urlConnection.getInputStream());
-        } catch (MalformedURLException e) {
-            Log.e("LED Client", e.toString());
-            throw new LEDClientException("Incorrect URL");
-        } catch (IOException e) {
-            Log.e("LED Client", e.toString());
-            throw new LEDClientException("Unknown error parsing URL");
-        } finally {
-            if(urlConnection != null){
-                urlConnection.disconnect();
-            }
-        }
-
-    }
 
     public LEDClient(String host){
         this.host = host;
@@ -109,23 +80,5 @@ public class LEDClient implements LEDClientInterface {
             Log.e("LED Client", e.getMessage());
             throw new LEDClientException("JSON parsing error.");
         }
-    }
-
-    private JSONObject getJsonObject(InputStream in){
-        try {
-            BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            StringBuilder responseStrBuilder = new StringBuilder();
-
-            String inputStr;
-            while ((inputStr = streamReader.readLine()) != null){
-                responseStrBuilder.append(inputStr);
-            }
-            //returns the json object
-            return new JSONObject(responseStrBuilder.toString());
-
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

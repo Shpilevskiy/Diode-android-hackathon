@@ -1,20 +1,19 @@
-package com.example.shpilevskiy.wifidiode.Discoverer;
+package com.example.shpilevskiy.wifidiode.LEDHttp.Discoverer;
 
 import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
 
+import com.example.shpilevskiy.wifidiode.LEDHttp.HTTPClient;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-public class BoardDiscoverer implements BoardDiscovererInterface {
+public class BoardDiscoverer extends HTTPClient implements BoardDiscovererInterface {
 
     private final int HTTP_STATUS_200 = 200;
 
@@ -68,23 +67,6 @@ public class BoardDiscoverer implements BoardDiscovererInterface {
                     e.printStackTrace();
                 }
             }
-        }
-        return null;
-    }
-
-    private JSONObject getJsonObject(InputStream in){
-        try {
-            BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            StringBuilder responseStrBuilder = new StringBuilder();
-
-            String inputStr;
-            while ((inputStr = streamReader.readLine()) != null)
-                responseStrBuilder.append(inputStr);
-
-            //returns the json object
-            return new JSONObject(responseStrBuilder.toString());
-
-        } catch (IOException | JSONException ignored) {
         }
         return null;
     }

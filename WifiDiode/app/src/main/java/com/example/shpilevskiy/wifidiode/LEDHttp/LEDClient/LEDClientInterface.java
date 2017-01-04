@@ -1,4 +1,4 @@
-package com.example.shpilevskiy.wifidiode.LEDClient;
+package com.example.shpilevskiy.wifidiode.LEDHttp.LEDClient;
 
 /**
  * Created by anders-lokans on 02.01.17.

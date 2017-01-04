@@ -1,6 +1,4 @@
-package com.example.shpilevskiy.wifidiode.Discoverer;
-
-import org.json.JSONException;
+package com.example.shpilevskiy.wifidiode.LEDHttp.Discoverer;
 
 /**
  * Created by nick on 04.01.17.
