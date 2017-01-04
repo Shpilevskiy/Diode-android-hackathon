@@ -42,7 +42,7 @@ void writeBrightnessLevel(int level){
 
 // Toggle LED
 void toggleLED(){
-  if (BRIGHTNESS_LEVEL == MAX_BRIGHTNESS_LEVEL){
+  if (BRIGHTNESS_LEVEL > MIN_BRIGHTNESS_LEVEL){
     writeBrightnessLevel(MIN_BRIGHTNESS_LEVEL);
   } else {
     writeBrightnessLevel(MAX_BRIGHTNESS_LEVEL);
