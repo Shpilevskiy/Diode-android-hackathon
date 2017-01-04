@@ -1,6 +1,7 @@
 package com.example.shpilevskiy.wifidiode;
 import com.example.shpilevskiy.wifidiode.LEDClient.LEDClient;
 import com.example.shpilevskiy.wifidiode.LEDClient.LEDClientException;
+import com.example.shpilevskiy.wifidiode.Discoverer.BoardDiscoverer;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
@@ -8,6 +9,7 @@ import android.net.wifi.WifiManager;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -17,10 +19,10 @@ import android.widget.ToggleButton;
 
 public class MainActivity extends AppCompatActivity {
 
-    private int BRIGHTNESS_STEP = 15;
+    private int BRIGHTNESS_STEP = 20;
 
-    private static final String HOST = "http://192.168.100.16";
-    private static int brightnessCounter = 0;
+    private static String HOST = null;
+    private int brightnessCounter = 0;
 
 
     @Override
@@ -36,17 +38,14 @@ public class MainActivity extends AppCompatActivity {
         final EditText passwordText = (EditText) findViewById(R.id.PasswordEditText);
         final SeekBar brightnessLevelBar = (SeekBar) findViewById(R.id.brightnessLevelBar);
 
+//        prepareUiElements(lightSwitcher);
+
+        BoardDiscoverer boardDiscoverer = new BoardDiscoverer(25, (WifiManager) getSystemService(Context.WIFI_SERVICE));
+
+        HOST = boardDiscoverer.discoverBoard();
+        System.out.println("!" + HOST);
         final LEDClient ledClient = new LEDClient(HOST);
 
-
-        try {
-            if (ledClient.isOn()) {
-                lightSwitcher.setChecked(true);
-            }
-        } catch (LEDClientException e) {
-            // TODO (mrlokans) handle exception appropriately
-            e.printStackTrace();
-        }
 
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -69,16 +68,7 @@ public class MainActivity extends AppCompatActivity {
         brightnessLevelBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                try {
-                    if (progress > brightnessCounter + BRIGHTNESS_STEP || progress < brightnessCounter - BRIGHTNESS_STEP) {
-                        System.out.println(progress);
-                        ledClient.setBrightnessLevel(progress);
-                        brightnessCounter = progress;
-                    }
-                } catch (LEDClientException e) {
-                    // TODO (mrlokans) handle exception appropriately
-                    e.printStackTrace();
-                }
+                changeBrightnessLevel(progress);
             }
 
             @Override
@@ -93,6 +83,32 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void changeBrightnessLevel(int progress) {
+        LEDClient ledClient = new LEDClient(HOST);
+
+        try {
+            if (progress > brightnessCounter + BRIGHTNESS_STEP || progress < brightnessCounter - BRIGHTNESS_STEP) {
+                ledClient.setBrightnessLevel(progress);
+                brightnessCounter = progress;
+            }
+        } catch (LEDClientException e) {
+            // TODO (mrlokans) handle exception appropriately
+            e.printStackTrace();
+        }
+    }
+
+    private void prepareUiElements(Switch lightSwitcher) {
+        LEDClient ledClient = new LEDClient(HOST);
+
+        try {
+            if (ledClient.isOn()) {
+                lightSwitcher.setChecked(true);
+            }
+        } catch (LEDClientException e) {
+            // TODO (mrlokans) handle exception appropriately
+            e.printStackTrace();
+        }
+    }
 
     public void createWifiConnection(String ssid, String password) {
 
