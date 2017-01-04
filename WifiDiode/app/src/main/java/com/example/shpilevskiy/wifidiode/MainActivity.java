@@ -17,8 +17,10 @@ import android.widget.ToggleButton;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String HOST = "http://192.168.100.16";
+    private int BRIGHTNESS_STEP = 15;
 
+    private static final String HOST = "http://192.168.100.16";
+    private static int brightnessCounter = 0;
 
 
     @Override
@@ -68,7 +70,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 try {
-                    ledClient.setBrightnessLevel(progress);
+                    if (progress > brightnessCounter + BRIGHTNESS_STEP || progress < brightnessCounter - BRIGHTNESS_STEP) {
+                        System.out.println(progress);
+                        ledClient.setBrightnessLevel(progress);
+                        brightnessCounter = progress;
+                    }
                 } catch (LEDClientException e) {
                     // TODO (mrlokans) handle exception appropriately
                     e.printStackTrace();
